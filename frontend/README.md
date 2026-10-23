@@ -4,6 +4,8 @@ A responsive React, JavaScript, Vite, and Tailwind CSS dashboard prototype for e
 
 ## Start the application
 
+Run these commands from the `frontend` directory:
+
 ```sh
 npm install
 npm run dev
@@ -16,6 +18,8 @@ npm run lint
 npm run test
 npm run build
 ```
+
+Dependencies and the npm lock file are maintained in `frontend/`. There is no separate project-level dependency installation.
 
 ## Data and limitations
 
