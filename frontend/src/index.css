@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+@layer base {
+  :root {
+    @apply min-w-80 scroll-smooth bg-[#f5f7fb] font-sans text-[#212a3a] antialiased;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    font-optical-sizing: auto;
+  }
+
+  body {
+    @apply m-0 min-h-screen;
+  }
+
+  button,
+  select {
+    @apply cursor-pointer;
+  }
+
+  a {
+    @apply text-inherit;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    @apply outline-2 outline-offset-2 outline-[#586ed8];
+  }
+}
+
+@media print {
+  .sidebar,
+  .topbar,
+  .intro-actions,
+  .filter-control,
+  .table-controls {
+    @apply hidden;
+  }
+
+  .main-content {
+    @apply m-0;
+  }
+
+  .page-content {
+    @apply max-w-none p-0;
+  }
+
+  .panel,
+  .kpi-card {
+    @apply shadow-none break-inside-avoid;
+  }
+}
