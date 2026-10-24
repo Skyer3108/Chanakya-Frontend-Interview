@@ -16,7 +16,7 @@
   .nav-link.active { @apply shadow-[inset_2px_0_#7189f7]; }
   .nav-icon { @apply w-[17px] text-center text-[17px] text-[#9cadd0]; }
   .nav-link.active .nav-icon { @apply text-[#a6b6ff]; }
-  .nav-indicator { @apply absolute right-[11px] h-[5px] w-[5px] rounded-full bg-[#7d92f6]; }
+  .nav-indicator { @apply absolute top-1/2 right-[11px] h-[5px] w-[5px] -translate-y-1/2 rounded-full bg-[#7d92f6]; }
   .sidebar-bottom { @apply mt-auto rounded-[9px] border border-[#2b3954] bg-[#1c2b46] px-[13px] pt-[14px] pb-[15px]; }
   .sidebar-note-icon { @apply mb-[9px] grid h-[18px] w-[18px] place-items-center rounded-full bg-[#314568] text-[12px] leading-[18px] text-[#b9c8f0]; }
   .sidebar-bottom strong { @apply text-[11px] text-[#e3e8f2]; }

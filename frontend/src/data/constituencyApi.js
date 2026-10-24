@@ -81,12 +81,14 @@ const mockConstituency = {
   assemblyConstituencies,
   parliamentaryResults,
   demographics: {
-    referenceYear: 'Unavailable',
-    population: null,
-    femaleShare: null,
-    ruralShare: null,
-    literacyRate: null,
-    scStShare: null,
+    referenceYear: 2011,
+    geography: 'Varanasi district',
+    population: 3676841,
+    femalePopulation: 1754984,
+    ruralPopulation: 2079790,
+    literacyRate: 75.6,
+    scheduledCastePopulation: 486958,
+    scheduledTribePopulation: 28617,
   },
 }
 

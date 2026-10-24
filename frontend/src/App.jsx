@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Bar,
   BarChart,
@@ -119,6 +119,7 @@ function App() {
   const [search, setSearch] = useState('')
   const [sortOrder, setSortOrder] = useState('votes-desc')
   const [activeNav, setActiveNav] = useState('overview')
+  const pendingNav = useRef(null)
 
   useEffect(() => {
     let active = true
@@ -140,10 +141,22 @@ function App() {
   }, [reload])
 
   useEffect(() => {
+    if (!window.location.hash) {
+      window.history.replaceState(window.history.state, '', '#overview')
+    }
+    if (!data) return
+
     let frame = 0
-    const updateActiveSection = () => {
+    const syncActiveSection = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => {
+        if (pendingNav.current) {
+          const target = document.getElementById(pendingNav.current)
+          const targetTop = target?.getBoundingClientRect().top
+          if (!Number.isFinite(targetTop) || targetTop < 0 || targetTop > 40) return
+          pendingNav.current = null
+        }
+
         const marker = window.scrollY + Math.min(220, window.innerHeight * 0.3)
         let currentSection = navItems[0].id
 
@@ -159,16 +172,27 @@ function App() {
         setActiveNav((current) => current === currentSection ? current : currentSection)
       })
     }
+    const updateActiveSection = syncActiveSection
+    const resumeScrollTracking = () => {
+      pendingNav.current = null
+      updateActiveSection()
+    }
 
-    updateActiveSection()
+    syncActiveSection()
     window.addEventListener('scroll', updateActiveSection, { passive: true })
-    window.addEventListener('resize', updateActiveSection)
+    window.addEventListener('resize', syncActiveSection)
+    window.addEventListener('wheel', resumeScrollTracking, { passive: true })
+    window.addEventListener('touchstart', resumeScrollTracking, { passive: true })
+    window.addEventListener('keydown', resumeScrollTracking)
     return () => {
       cancelAnimationFrame(frame)
       window.removeEventListener('scroll', updateActiveSection)
-      window.removeEventListener('resize', updateActiveSection)
+      window.removeEventListener('resize', syncActiveSection)
+      window.removeEventListener('wheel', resumeScrollTracking)
+      window.removeEventListener('touchstart', resumeScrollTracking)
+      window.removeEventListener('keydown', resumeScrollTracking)
     }
-  }, [])
+  }, [data])
 
   const availableResults = useMemo(
     () => data ? getYearResults(data.parliamentaryResults, selectedYear) : [],
@@ -254,10 +278,13 @@ function App() {
               href={`#${item.id}`}
               aria-label={item.label}
               title={item.label}
-              onClick={() => setActiveNav(item.id)}
+              onClick={() => {
+                pendingNav.current = item.id
+                setActiveNav(item.id)
+              }}
             >
               <span className="nav-icon" aria-hidden="true">{item.icon}</span>{item.label}
-              {item.id === 'overview' && <span className="nav-indicator" />}
+              {activeNav === item.id && <span className="nav-indicator" />}
             </a>
           ))}
         </nav>
@@ -525,11 +552,17 @@ function App() {
                 <p className="chart-footnote">Votes polled ÷ registered electors × 100.</p>
               </article>
               <article className="panel demographic-card">
-                <div className="panel-heading"><div><h3>Demographic context</h3><p>Reference year: {data.demographics.referenceYear}</p></div><span className="demographic-icon">▦</span></div>
+                <div className="panel-heading"><div><h3>Demographic context</h3><p>{data.demographics.geography} · {data.demographics.referenceYear}</p></div><span className="demographic-icon">▦</span></div>
                 <div className="demographic-list">
-                  {[['Population', data.demographics.population], ['Female population', data.demographics.femaleShare], ['Rural population', data.demographics.ruralShare], ['Literacy rate', data.demographics.literacyRate], ['SC / ST population', data.demographics.scStShare]].map(([label, value]) => <div key={String(label)}><span>{label}</span><strong>{value === null ? 'Unavailable' : formatPercent(Number(value))}</strong></div>)}
+                  {[
+                    ['Population', formatNumber(data.demographics.population)],
+                    ['Female population', formatNumber(data.demographics.femalePopulation)],
+                    ['Rural population', formatNumber(data.demographics.ruralPopulation)],
+                    ['Literacy rate', formatPercent(data.demographics.literacyRate)],
+                    ['SC / ST population', formatNumber(data.demographics.scheduledCastePopulation + data.demographics.scheduledTribePopulation)],
+                  ].map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}
                 </div>
-                <p className="chart-footnote">No demographic values are included in this demonstration dataset.</p>
+                <p className="chart-footnote">District-level Census 2011 data. <a href="https://varanasi.nic.in/demography/" target="_blank" rel="noreferrer">Source: Varanasi district administration</a></p>
               </article>
             </div>
           </section>
